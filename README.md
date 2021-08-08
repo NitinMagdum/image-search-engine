@@ -1,3 +1,12 @@
+steps for Application setup
+
+1. clone repo
+2. npm install (node js should be installed)
+3. npm run start 
+
+
+
+==================================================================================================
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
