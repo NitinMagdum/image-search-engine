@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FC, useRef } from "react";
+import React, { useState, FC, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 let page = 1;
