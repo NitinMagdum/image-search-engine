@@ -1,23 +1,37 @@
-import React, { useState, FC, useRef } from "react";
+import React, { useState, FC, useRef, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+
 let page = 1;
+let query = "";
+let currentList: any = [];
+
 const App: FC = () => {
   const [filter, setFilter] = useState("");
   const limit = useRef(10);
+  const total = useRef(0);
   const [imageList, setImageList] = useState<any[]>([]);
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
 
   const filterHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value);
   };
 
   const callApi = () => {
-    const url = `https://api.unsplash.com/search/photos?client_id=${process.env.REACT_APP_ACCESS_KEY}&query=${filter}&page=${page}&per_page=${limit.current}`;
+    const url = `https://api.unsplash.com/search/photos?client_id=${process.env.REACT_APP_ACCESS_KEY}&query=${query}&page=${page}&per_page=${limit.current}`;
 
     axios
       .get(url)
       .then((res) => {
-        setImageList([...res.data.results]);
+        if (page === 1) {
+          setImageList([...res.data.results]);
+          currentList = [...res.data.results];
+        } else {
+          setImageList([...currentList, ...res.data.results]);
+          currentList = [...currentList, ...res.data.results];
+        }
+
+        total.current = res.data.total;
       })
       .catch((err) => {
         console.log(err);
@@ -25,9 +39,41 @@ const App: FC = () => {
   };
 
   const searchHandler = () => {
-    setImageList([]);
+    page = 1;
+    query = filter;
+    console.log(imageList);
+    //setImageList([]);
     callApi();
   };
+
+  const observer = React.useRef(
+    new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting === true) {
+          //setPage(page + 1);
+          ++page;
+          callApi();
+        }
+      },
+      { threshold: 0.1 }
+    )
+  );
+
+  useEffect(() => {
+    const currentElement = element;
+    const currentObserver = observer.current;
+
+    if (currentElement !== null) {
+      currentObserver.observe(currentElement);
+    }
+
+    return () => {
+      if (currentElement != null) {
+        currentObserver.unobserve(currentElement);
+      }
+    };
+  }, [element]);
 
   return (
     <div className="App">
@@ -56,6 +102,11 @@ const App: FC = () => {
                 />
               );
             })}
+          </div>
+        )}
+        {imageList.length !== 0 && imageList.length !== total.current && (
+          <div ref={setElement} className="loading">
+            <p>Loading More...</p>
           </div>
         )}
       </div>
