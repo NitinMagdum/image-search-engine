@@ -57,3 +57,7 @@ button {
   text-align: center;
   font-weight: bold;
 }
+
+button:disabled {
+  background-color: lightgray;
+}

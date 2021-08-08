@@ -85,7 +85,7 @@ const App: FC = () => {
             placeholder="Search Images"
             onChange={filterHandler}
           />
-          <button onClick={searchHandler}>Search</button>
+          <button disabled={!filter.trim().length} onClick={searchHandler}>Search</button>
         </div>
       </header>
       <div className="container">
